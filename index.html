@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <!-- Thêm SweetAlert2 -->
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bảng Công việc Hàng Ngày</title>
+    <style>
+      /* Giữ nguyên toàn bộ CSS */
+      #login-container {
+        text-align: center;
+        margin-top: 100px;
+        background: linear-gradient(135deg, #74ebd5, #acb6e5);
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+        color: white;
+      }
+      #login-container h2 {
+        color: #fff;
+        font-size: 28px;
+      }
+      #login-container input[type="text"] {
+        width: 80%;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        margin-top: 10px;
+        font-size: 18px;
+      }
+      #login-container button {
+        padding: 10px 20px;
+        font-size: 18px;
+        background-color: #fff;
+        color: #007bff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        margin-top: 10px;
+      }
+      #login-container button:hover {
+        background-color: #f1f1f1;
+      }
+      .motivation {
+        font-style: italic;
+        margin-top: 20px;
+        color: #fff;
+        font-size: 18px;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        padding: 10px;
+        background-color: #f0f2f5;
+      }
+      h2 {
+        text-align: center;
+        color: #333;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+      table {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #ddd;
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: center;
+      }
+      select,
+      input[type="text"],
+      input[type="number"] {
+        width: 90%;
+        padding: 5px;
+        box-sizing: border-box;
+        margin-top: 5px;
+      }
+      .details {
+        display: none;
+      }
+      .details.active {
+        display: block;
+      }
+      .hidden {
+        display: none;
+      }
+      .details-container {
+        text-align: left;
+        margin-top: 5px;
+      }
+      .summary {
+        width: 90%;
+        max-width: 800px;
+        margin: 20px auto;
+        background: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 15px;
+        border-radius: 5px;
+      }
+      .summary h3 {
+        text-align: center;
+        color: #007bff;
+      }
+      .summary p {
+        font-size: 16px;
+        margin: 5px 0;
+      }
+      .pt-row {
+        background-color: #c8e6c9;
+      }
+      .setup-row {
+        background-color: #ffe082;
+      }
+      .appt-row {
+        background-color: #bbdefb;
+      }
+      .off-row {
+        background-color: #e0e0e0;
+      }
+      @media screen and (max-width: 600px) {
+        table {
+          width: 100%;
+          font-size: 14px;
+        }
+        select,
+        input[type="text"],
+        input[type="number"] {
+          width: 90%;
+        }
+      }
+      #submit-btn {
+        padding: 15px 30px;
+        font-size: 18px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #submit-btn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="login-container">
+      <h2>Chào mừng PT!</h2>
+      <p class="motivation">Một ngày hiệu quả bắt đầu từ một ý chí mạnh mẽ!</p>
+      <p class="motivation">
+        Luôn tiến lên phía trước, thành công đang đợi bạn!
+      </p>
+      <h2>Đăng nhập bằng mã code</h2>
+      <input
+        type="text"
+        id="code-input"
+        placeholder="Nhập mã code"
+        style="padding: 10px; font-size: 16px"
+      />
+      <br /><br />
+      <button
+        onclick="checkCode()"
+        style="
+          padding: 10px 20px;
+          font-size: 16px;
+          background-color: #007bff;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        "
+      >
+        Đăng nhập
+      </button>
+    </div>
+    <div id="main-container" style="display: none">
+      <h2>Bảng Công việc Hàng Ngày</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Khung giờ</th>
+            <th>Loại công việc</th>
+            <th>Chi tiết (nếu có)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <script>
+            const timeSlots = [
+              "06-07",
+              "07-08",
+              "08-09",
+              "09-10",
+              "10-11",
+              "11-12",
+              "12-13",
+              "13-14",
+              "14-15",
+              "15-16",
+              "16-17",
+              "17-18",
+              "18-19",
+              "19-20",
+              "20-21",
+            ]
+
+            timeSlots.forEach((slot) => {
+              document.write(`
+                            <tr id="row-${slot}">
+                                <td>${slot}</td>
+                                <td>
+                                    <select onchange="changeRowColor(this, 'row-${slot}'); showDetails(this, 'details-${slot}'); updateSummary()">
+                                        <option value="">Chọn loại công việc</option>
+                                        <option value="PT">PT</option>
+                                        <option value="APPT">APPT</option>
+                                        <option value="SETUP RN">SETUP RN</option>
+                                        <option value="OFF">OFF</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <div id="details-${slot}" class="details-container">
+                                        <div class="appt-info hidden">
+                                            <input type="text" placeholder="Họ và tên khách hàng">
+                                            <input type="text" placeholder="Số điện thoại">
+                                        </div>
+                                        <div class="setup-info hidden">
+                                            <input type="text" placeholder="Họ và tên khách hàng">
+                                            <input type="number" placeholder="Số tiền setup">
+                                        </div>
+                                        <!-- Thêm mới: Trường chi tiết cho PT -->
+                                        <div class="pt-info hidden">
+                                            <input type="text" placeholder="Họ và tên khách hàng">
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        `)
+            })
+          </script>
+        </tbody>
+      </table>
+      <div class="summary">
+        <h3>Tổng hợp cuối ngày</h3>
+        <p>Tổng số buổi PT: <span id="total-pt">0</span></p>
+        <p>Tổng số APPT: <span id="total-appt">0</span></p>
+        <p>Tổng số SETUP RN: <span id="total-setup">0</span></p>
+      </div>
+      <div style="text-align: center; margin: 20px">
+        <button id="submit-btn" onclick="submitReport()">Gửi báo cáo</button>
+      </div>
+      <div
+        id="notification"
+        style="
+          position: fixed;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          padding: 10px 20px;
+          color: white;
+          border-radius: 5px;
+          display: none;
+        "
+      ></div>
+
+      <script>
+        function changeRowColor(selectElement, rowId) {
+          var value = selectElement.value
+          var row = document.getElementById(rowId)
+          row.classList.remove("pt-row", "appt-row", "setup-row", "off-row")
+          if (value === "PT") row.classList.add("pt-row")
+          if (value === "APPT") row.classList.add("appt-row")
+          if (value === "SETUP RN") row.classList.add("setup-row")
+          if (value === "OFF") row.classList.add("off-row")
+        }
+
+        function showDetails(selectElement, detailsId) {
+          var value = selectElement.value
+          var detailsDiv = document.getElementById(detailsId)
+          detailsDiv
+            .querySelectorAll(".appt-info, .setup-info")
+            .forEach(function (div) {
+              div.classList.add("hidden")
+            })
+          if (value === "APPT") {
+            detailsDiv.querySelector(".appt-info").classList.remove("hidden")
+          } else if (value === "SETUP RN") {
+            detailsDiv.querySelector(".setup-info").classList.remove("hidden")
+          }
+        }
+
+        function updateSummary() {
+          let totalPT = 0
+          let totalAPPT = 0
+          let totalSETUP = 0
+          document.querySelectorAll("select").forEach((select) => {
+            if (select.value === "PT") totalPT++
+            if (select.value === "APPT") totalAPPT++
+            if (select.value === "SETUP RN") totalSETUP++
+          })
+          document.getElementById("total-pt").innerText = totalPT
+          document.getElementById("total-appt").innerText = totalAPPT
+          document.getElementById("total-setup").innerText = totalSETUP
+        }
+
+        function submitReport() {
+          const submitBtn = document.getElementById("submit-btn");
+          const notification = document.getElementById("notification");
+          submitBtn.disabled = true;
+
+          const ptCode = document.getElementById("code-input").value;
+          const summaryData = {};
+          const detailsData = [];
+
+          timeSlots.forEach((slot) => {
+            const select = document.querySelector(`#row-${slot} select`);
+            const value = select.value || ""; // Lấy giá trị loại công việc
+
+            // GỬI DỮ LIỆU CẢ PT
+            summaryData[slot] = value;
+
+            if (value === "PT") {
+              detailsData.push({
+                ptCode: ptCode,
+                time: slot,
+                type: "PT"
+              });
+            } else if (value === "APPT") {
+              const inputs = document.querySelectorAll(`#details-${slot} .appt-info input`);
+              detailsData.push({
+                ptCode: ptCode,
+                time: slot,
+                type: "APPT",
+                customerName: inputs[0].value || "",
+                phone: inputs[1].value || ""
+              });
+            } else if (value === "SETUP RN") {
+              const inputs = document.querySelectorAll(`#details-${slot} .setup-info input`);
+              detailsData.push({
+                ptCode: ptCode,
+                time: slot,
+                type: "SETUP RN",
+                customerName: inputs[0].value || "",
+                amount: inputs[1].value || ""
+              });
+            }
+          });
+
+          const payload = {
+            ptCode: ptCode,
+            summary: summaryData,
+            details: detailsData
+          };
+
+          fetch("URL_SCRIPT_CỦA_BẠN", {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          })
+            .then(() => {
+              notification.textContent = `Cảm ơn PT! Mã nhân viên ${ptCode} đã gửi báo cáo thành công!`;
+              notification.style.backgroundColor = "#28a745";
+              notification.style.display = "block";
+              setTimeout(() => {
+                notification.style.display = "none";
+                submitBtn.disabled = false;
+              }, 5000);
+            })
+            .catch((error) => {
+              notification.textContent = "Đã xảy ra lỗi khi gửi báo cáo. Vui lòng thử lại.";
+              notification.style.backgroundColor = "#dc3545";
+              notification.style.display = "block";
+              setTimeout(() => {
+                notification.style.display = "none";
+                submitBtn.disabled = false;
+              }, 5000);
+              console.error("Error:", error);
+            });
+        }
+
+        // Thêm mới: Hàm điều chỉnh để gửi dữ liệu đúng định dạng
+        function showDetails(selectElement, detailsId) {
+          var value = selectElement.value;
+          var detailsDiv = document.getElementById(detailsId);
+          detailsDiv.querySelectorAll(".appt-info, .setup-info, .pt-info").forEach(function (div) {
+            div.classList.add("hidden");
+          });
+          if (value === "PT") {
+            detailsDiv.querySelector(".pt-info").classList.remove("hidden");
+          } else if (value === "APPT") {
+            detailsDiv.querySelector(".appt-info").classList.remove("hidden");
+          } else if (value === "SETUP RN") {
+            detailsDiv.querySelector(".setup-info").classList.remove("hidden");
+          }
+        }
+
+        function submitReportWithCustomerName() {
+          const submitBtn = document.getElementById("submit-btn");
+          const notification = document.getElementById("notification");
+          submitBtn.disabled = true;
+
+          const ptCode = document.getElementById("code-input").value;
+          const summaryData = {};
+          const detailsData = [];
+
+          timeSlots.forEach((slot) => {
+            const select = document.querySelector(`#row-${slot} select`);
+            const value = select.value || "";
+
+            if (value === "PT") {
+              const ptInput = document.querySelector(`#details-${slot} .pt-info input`);
+              const customerName = ptInput.value || "";
+              const ptTypeWithName = customerName ? `PT/${customerName}` : "PT"; // Gộp tên KH vào type
+              summaryData[slot] = ptTypeWithName; // Hiển thị "PT/Tên KH" trong summary
+              detailsData.push({
+                ptCode: ptCode,
+                time: slot,
+                type: ptTypeWithName // Gửi "PT/Tên KH" trong type
+              });
+            } else if (value === "APPT") {
+              const inputs = document.querySelectorAll(`#details-${slot} .appt-info input`);
+              summaryData[slot] = value;
+              detailsData.push({
+                ptCode: ptCode,
+                time: slot,
+                type: "APPT",
+                customerName: inputs[0].value || "",
+                phone: inputs[1].value || ""
+              });
+            } else if (value === "SETUP RN") {
+              const inputs = document.querySelectorAll(`#details-${slot} .setup-info input`);
+              summaryData[slot] = value;
+              detailsData.push({
+                ptCode: ptCode,
+                time: slot,
+                type: "SETUP RN",
+                customerName: inputs[0].value || "",
+                amount: inputs[1].value || ""
+              });
+            } else {
+              summaryData[slot] = value; // Giữ nguyên cho OFF hoặc rỗng
+            }
+          });
+
+          const payload = {
+            ptCode: ptCode,
+            summary: summaryData,
+            details: detailsData
+          };
+
+          console.log("Dữ liệu gửi đi:", payload); // Kiểm tra dữ liệu trong console
+
+          fetch("https://script.google.com/macros/s/AKfycbwHlEf27ks-EYIz7ESNjgsmnpVajxf78eWXTfl1bjszQ8ruZ3rgbBbWIVB6bYP2rbF1/exec", {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          })
+            .then(() => {
+              notification.textContent = `Cảm ơn PT! Mã nhân viên ${ptCode} đã gửi báo cáo thành công!`;
+              notification.style.backgroundColor = "#28a745";
+              notification.style.display = "block";
+              setTimeout(() => {
+                notification.style.display = "none";
+                submitBtn.disabled = false;
+              }, 5000);
+            })
+            .catch((error) => {
+              notification.textContent = "Đã xảy ra lỗi khi gửi báo cáo. Vui lòng thử lại.";
+              notification.style.backgroundColor = "#dc3545";
+              notification.style.display = "block";
+              setTimeout(() => {
+                notification.style.display = "none";
+                submitBtn.disabled = false;
+              }, 5000);
+              console.error("Error:", error);
+            });
+        }
+
+        // Gán hàm mới cho nút "Gửi báo cáo"
+        document.getElementById("submit-btn").onclick = submitReportWithCustomerName;
+
+      </script>
+    </div>
+    <script>
+      function checkCode() {
+        const code = document.getElementById("code-input").value
+        const codePattern = /^[0-9]{5}$/
+        if (codePattern.test(code)) {
+          document.getElementById("login-container").style.display = "none"
+          document.getElementById("main-container").style.display = "block"
+        } else {
+          alert(
+            "Mã code không hợp lệ! Mã code phải là 5 chữ số. Vui lòng thử lại.",
+          )
+        }
+      }
+    </script>
+  </body>
+</html>
